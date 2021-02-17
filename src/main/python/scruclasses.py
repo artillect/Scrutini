@@ -1,8 +1,6 @@
 # Scrutini Classes
 
 # Settings includes the info in settings
-
-
 class Settings:
     def __init__(self, name, version, schema, interface, lastComp, orderOfPlacings):
         self.name = name
@@ -13,21 +11,17 @@ class Settings:
         self.orderOfPlacings = orderOfPlacings
 
 # Competition Types include Regular, Championship, and Premiership and defines how scoring is done and number of judges
-
-
 class CompetitionType:
-    def __init__(self, id, name, abbrev, isChampionship, isProtected):
+    def __init__(self, id, name, abbrev, isChampionship=False, isProtected=True):
         self.id = id
         self.name = name
         self.abbrev = abbrev
         self.isChampionship = isChampionship
         self.isProtected = isProtected
 
-# Competitions
-
-
+# Competitions cover the whole event and all the dances at the event
 class Competition:
-    def __init__(self, id, name, description, eventDate, deadline, location, competitionType, isChampionship):
+    def __init__(self, id, name, description, eventDate, deadline, location, competitionType, isChampionship=False):
         self.id = id
         self.name = name
         self.description = description
@@ -45,16 +39,12 @@ class Category:
         self.name = name
 
 # Dances are names of dances and special trophies that can be chosen for an event
-
-
 class Dance:
     def __init__(self, id, name):
         self.id = id
         self.name = name
 
 # Events are dances and special trophies at a particular competition which can award medals
-
-
 class Event:
     def __init__(self, id, name, dancerGroup, dance, competition, countsForOverall, numPlaces, earnsStamp):
         self.id = id
@@ -67,10 +57,8 @@ class Event:
         self.earnsStamp = earnsStamp
 
 # Dancer Categories are Primary, Beginner, Novice, Intermediate, Premier
-
-
 class DancerCat:
-    def __init__(self, id, name, abbrev, protected):
+    def __init__(self, id, name, abbrev, protected=True):
         self.id = id
         self.abbrev = abbrev
         self.name = name
@@ -85,8 +73,6 @@ class PlaceValue:
 
 # Dancer Groups are age groupings within the Dancer Categories
 # Additional Dancer Groups can be made that are for special awards
-
-
 class DancerGroup:
     def __init__(self, id, name, abbrev, ageMin, ageMax, dancerCat, competition):
         self.id = id
@@ -123,8 +109,6 @@ class Dancer:
         self.competition = competition
 
 # Judges
-
-
 class Judge:
     def __init__(self, id, firstName, lastName, competition):
         self.id = id

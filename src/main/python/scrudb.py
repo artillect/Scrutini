@@ -10,29 +10,28 @@ app_version = 0.01
 schema_version = 0.01
 dbconn = None
 
+def retrieve_settings(whichSettings='current'):
+    """Retrieve settings from DB
 
-def retrieve_settings(whichSettings):
-    # retrieve settings from DB
-    # param: whichSettings <-- Expects 'current' atm, hoping to apply 'last' for undo
-    #returns: Settings (name, version, schema, interface, lastComp)
+    Arguments:
+    whichSettings -- String; which settings to retrieve (default 'current')
+    """
     conn = return_connection()
     cursor = conn.cursor()
     cursor.execute(
-        'SELECT name, version, schema, interface, lastComp, orderPlaces FROM settings WHERE name = \"%s\"' % whichSettings)
+        'SELECT * FROM settings WHERE name = \"%s\"' % whichSettings)
     row = cursor.fetchone()
-    settings = Settings(row[0], row[1], row[2], row[3], row[4], row[5])
-    #settings = Settings(row)
+    settings = Settings(*row)
     return settings
 
-
 def close_connection():
+    """Close the DB connection"""
     conn = return_connection()
     conn.close()
 
-
 def return_connection():
+    """Return a link to the active DB connection or opens a new one"""
     global dbconn
-    # return a link to the active connection to the DB. if none, open one
     if dbconn != None:
         return dbconn
     else:
@@ -40,72 +39,67 @@ def return_connection():
         dbconn = create_connection(db_filename)
         return dbconn
 
-
 def retrieve_competitionTypes():
+    """Return a list of CompetitionTypes"""
     conn = return_connection()
     cursor = conn.cursor()
     cursor.execute(
-        'select id, name, abbrev, isChampionship, protected from competitionTypes')
+        'select * from competitionTypes')
     competitionTypes = cursor.fetchall()
     competitionTypes_collection = []
     if (competitionTypes != None):
         for row in competitionTypes:
-            compType = CompetitionType(row[0], row[1], row[2], row[3], row[4])
+            compType = CompetitionType(*row)
             competitionTypes_collection.append(compType)
         return competitionTypes_collection
     else:
         return None
 
-
 def retrieve_competitionType(id):
+    """Return a single specified CompetitionType by id"""
     conn = return_connection()
     cursor = conn.cursor()
-    sql = ('select id, name, abbrev, isChampionship, protected from competitionTypes where id = %d' % int(id))
+    sql = ('select * from competitionTypes where id = %d' % int(id))
     cursor.execute(sql)
     row = cursor.fetchone()
-    compType = CompetitionType(row[0], row[1], row[2], row[3], row[4])
+    compType = CompetitionType(*row)
     return compType
 
-
 def retrieve_categories():
+    """Return a list of DancerCats"""
     conn = return_connection()
     cursor = conn.cursor()
-    cursor.execute("""
-        select id, name, abbrev from dancerCats
-        """)
+    cursor.execute('select * from dancerCats')
     categories = cursor.fetchall()
     dancerCat_collection = []
     if (categories != None):
         for row in categories:
-            category = DancerCat(row[0], row[1], row[2])
+            category = DancerCat(*row)
             dancerCat_collection.append(category)
         return dancerCat_collection
     else:
         return None
 
-
 def update_competition(comp):
+    """Save values for the selected Competition"""
     conn = return_connection()
     cursor = conn.cursor()
-    sql = ('update competitions set name = \"%s\", description = \"%s\", eventDate = \"%s\", deadline = \"%s\", location = \"%s\", competitionType = %d, isChampionship = %d where id =%d' % (
-        comp.name, comp.description, comp.eventDate, comp.deadline, comp.location, comp.competitionType, comp.isChampionship, comp.id))
+    sql = (f"update competitions set name='{comp.name}', description='{comp.description}', eventDate='{comp.eventDate}', deadline='{comp.deadline}', location='{comp.location}', competitionType={comp.competitionType}, isChampionship={comp.isChampionship} where id={comp.id}")
     cursor.execute(sql)
     conn.commit()
     return comp
 
-
 def insert_competition(comp):
+    """Create a new Competition"""
     conn = return_connection()
     cursor = conn.cursor()
-    #print('Inserting: %s - %s -- %s, %s -- %s' % (comp.name, comp.description, comp.eventDate, comp.deadline, comp.location))
-    sql = 'insert into competitions default values'
+    sql = ('insert into competitions (name, description, eventDate, deadline, location, competitionType, isChampionship) values (\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",%d,%d)' % (comp.name, comp.description, comp.eventDate, comp.deadline, comp.location, comp.competitionType, comp.isChampionship))
     cursor.execute(sql)
     comp.id = cursor.lastrowid
-    comp = update_competition(comp)
     return comp
 
-
 def rm_competition(id):
+    """Delete the Competition specified by id and associated objects"""
     conn = return_connection()
     cursor = conn.cursor()
     sql = ('delete from competitions where id = %d' % int(id))
@@ -116,98 +110,91 @@ def rm_competition(id):
     rm_events_by_competition(id)
     conn.commit()
 
-
 def retrieve_competitions():
+    """Return a list of Competitions"""
     conn = return_connection()
     cursor = conn.cursor()
     cursor.execute(
-        'select id, name, description, eventDate, deadline, location, competitionType, isChampionship from competitions')
+        'select * from competitions')
     competitions_collection = []
     competitions = cursor.fetchall()
     if (competitions != None):
         for row in competitions:
-            comp = Competition(row[0], row[1], row[2],
-                               row[3], row[4], row[5], row[6], row[7])
+            comp = Competition(*row)
             competitions_collection.append(comp)
         return competitions_collection
     else:
         return None
 
-
 def retrieve_competition(id):
+    """Return a single Competition specified by id"""
     conn = return_connection()
     cursor = conn.cursor()
-    sql = ('select id, name, description, eventDate, deadline, location, competitionType, isChampionship from competitions where id = %d' % int(id))
+    sql = ('select * from competitions where id = %d' % int(id))
     cursor.execute(sql)
     row = cursor.fetchone()
-    comp = Competition(row[0], row[1], row[2], row[3],
-                       row[4], row[5], row[6], row[7])
+    comp = Competition(*row)
     return comp
 
-
 def update_judge(judge):
+    """Save the specified Judge"""
     conn = return_connection()
     cursor = conn.cursor()
-    #print('Update Judge %s %s %d' % (judge.firstName, judge.lastName, judge.id))
     sql2 = ('update judges set firstName = \"%s\", lastName = \"%s\", competition = %d where id =%d' % (
         judge.firstName, judge.lastName, judge.competition, judge.id))
     cursor.execute(sql2)
     conn.commit()
     return judge
 
-
 def insert_judge(judge):
-    # Add a new Judge object to the DB
+    """Create a new Judge"""
     conn = return_connection()
     cursor = conn.cursor()
-    #print('Inserting: %s %s' % (judge.firstName, judge.lastName))
-    sql = 'insert into judges default values'
+    sql = f"insert into judges (firstName, lastName, competition) values ('{judge.firstName}','{judge.lastName}',{judge.competition})"
     cursor.execute(sql)
     judge.id = cursor.lastrowid
-    judge = update_judge(judge)
     return judge
 
-
 def rm_judge(id):
+    """Delete a selected Judge specified by id"""
     conn = return_connection()
     cursor = conn.cursor()
     sql = ('delete from judges where id = %d' % int(id))
     cursor.execute(sql)
     conn.commit()
 
-
 def rm_judges_by_competition(comp_id):
+    """Delete all Judges in a Competition specified by Competition.id"""
     conn = return_connection()
     cursor = conn.cursor()
     sql = ('delete from judges where competition = %d' % int(comp_id))
     cursor.execute(sql)
     conn.commit()
 
-
 def retrieve_judges_by_competition(comp_id):
+    """Return a list of all Judges in a Competition specified by Competition.id"""
     conn = return_connection()
     cursor = conn.cursor()
-    sql = ('select id, firstName, lastName, competition from judges where competition = %d' % int(comp_id))
+    sql = ('select * from judges where competition = %d' % int(comp_id))
     cursor.execute(sql)
     judges = cursor.fetchall()
     judges_collection = []
     if (judges != None):
         for row in judges:
-            judge = Judge(row[0], row[1], row[2], row[3])
+            judge = Judge(*row)
             judges_collection.append(judge)
-            #print('Found judge',row[0],row[1],row[2],'in competition',row[3])
         return judges_collection
     else:
         return None
 
-
 def retrieve_judge(id):
+    """Return a single Judge specified by id"""
     conn = return_connection()
     cursor = conn.cursor()
-    sql = ('select id, firstName, lastName, competition from judges where id = %d' % int(id))
+    sql = ('select * from judges where id = %d' % int(id))
     cursor.execute(sql)
     row = cursor.fetchone()
-    judge = Judge(row[0], row[1], row[2], row[3])
+    judge = Judge(*row)
     return judge
 
 
