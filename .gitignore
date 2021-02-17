@@ -1,2 +1,5 @@
 *.db
+.env
 target/
+.DS_Store
+main/python/__pycache__/
