@@ -293,6 +293,16 @@ class Dancer:
         return f"{self.iid}: [#{self.competitor_num}] {self.first_name} "\
                f"{self.last_name}"
 
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    def set_full_name(self, arg):
+        name = arg.split(" ")
+        self.first_name = name[0]
+        self.last_name = name[1]
+
+    full_name = property(fget=get_full_name, fset=set_full_name)
+
 
 class Judge:
     def __init__(self, iid, first_name, last_name, competition):

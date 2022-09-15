@@ -1,3 +1,4 @@
+#!/Users/mtaylor/.pyenv/shims/python
 """Scrutini Main."""
 import argparse
 import os
@@ -5,15 +6,38 @@ import sys
 import gui
 from db import SCDatabase
 from classes import Settings
-from fbs_runtime.application_context.PyQt5 import ApplicationContext
+from fbs_runtime.application_context.PyQt6 import ApplicationContext
+from qt_material import apply_stylesheet
+import PyQt6.QtGui as qg
+import subprocess
+import darkdetect
+import platform
 
+def check_appearance():
+    """Checks DARK/LIGHT mode of macos."""
+    cmd = 'defaults read -g AppleInterfaceStyle'
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE, shell=True)
+    return bool(p.communicate()[0])
 
 class AppContext(ApplicationContext):
     def run(self, db):
+        result = platform.uname()
+        print(result)
+        mode = "light"
+        if (result.system=="Darwin" and check_appearance()) or (result.system != "Darwin" and darkdetect.isDark()):
+        # if darkdetect.isDark():
+        # if check_appearance():
+            mode = "dark"
+        apply_stylesheet(self.app, theme=f"{mode}_blue.xml")
+        # print(darkdetect.theme())
         window = gui.SMainWindow(self, db)
+        scriptDir = os.path.dirname(os.path.realpath(__file__))
+        icon = qg.QIcon(scriptDir + os.path.sep + '../icons/mac/256.png')
+        self.app.setWindowIcon(icon)
         # version = self.build_settings['version']
         window.show()
-        return self.app.exec_()
+        return self.app.exec()
 
 # initiate the parser
 parser = argparse.ArgumentParser()
@@ -70,7 +94,7 @@ if __name__ == "__main__":
     # window = gui.SMainWindow(None, scrudb)
     # window.show()
     # rc = 0
-    # rc = appctxt.app.exec_()
+    # rc = appctxt.app.exec()
     # rc = appctxt.app.exec()
     # del appctxt.app
     settings.write()

@@ -1,8 +1,8 @@
 import os
 import csv
 import datetime
-from PyQt5.QtWidgets import QPushButton, QMessageBox
-from PyQt5.QtCore import QDate
+from PyQt6.QtWidgets import QPushButton, QMessageBox
+from PyQt6.QtCore import QDate
 
 class SPushButton(QPushButton):
     def __init__(self, text, sender, identifier, fn):
@@ -19,13 +19,13 @@ class SMessageBox(QMessageBox):
     def __init__(self, sender):
         super().__init__()
         self.setText(sender.text())
-        self.exec_()
+        self.exec()
 
 
 def on_button_clicked(sender):
     alert = QMessageBox()
     alert.setText(sender.text())
-    alert.exec_()
+    alert.exec()
 
 
 def verify(prompt='Are you sure?', subprompt=''):
@@ -33,10 +33,10 @@ def verify(prompt='Are you sure?', subprompt=''):
     alert = QMessageBox()
     alert.setText(prompt)
     alert.setInformativeText(subprompt)
-    alert.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
-    alert.setEscapeButton(QMessageBox.Cancel)
-    button_reply = alert.exec_()
-    if button_reply == QMessageBox.Yes:
+    alert.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel)
+    alert.setEscapeButton(QMessageBox.StandardButton.Cancel)
+    button_reply = alert.exec()
+    if button_reply == QMessageBox.StandardButton.Yes:
         print('Yes clicked.')
         return True
     else:
@@ -49,15 +49,15 @@ def ask_save(prompt='Do you want to save your changes?', subprompt=''):
     alert = QMessageBox()
     alert.setText(prompt)
     alert.setInformativeText(subprompt)
-    alert.setStandardButtons(QMessageBox.Save | QMessageBox.Discard
-                             | QMessageBox.Cancel)
-    alert.setDefaultButton(QMessageBox.Save)
-    alert.setEscapeButton(QMessageBox.Cancel)
-    button_reply = alert.exec_()
-    if button_reply == QMessageBox.Save:
+    alert.setStandardButtons(QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Discard
+                             | QMessageBox.StandardButton.Cancel)
+    alert.setDefaultButton(QMessageBox.StandardButton.Save)
+    alert.setEscapeButton(QMessageBox.StandardButton.Cancel)
+    button_reply = alert.exec()
+    if button_reply == QMessageBox.StandardButton.Save:
         print('Save clicked.')
         return 'save'
-    elif button_reply == QMessageBox.Discard:
+    elif button_reply == QMessageBox.StandardButton.Discard:
         print('Discard clicked')
         return 'discard'
     else:

@@ -586,8 +586,8 @@ class TableDancers:
 
     def remove(self, iid):
         """Delete a single Dancer by id"""
-        self.cursor.execute('delete from dancers where id = %d' % int(iid))
-        self.db.tables.groups.unjoin_by_dancer(iid)
+        self.cursor.execute('delete from dancer where id = %d' % int(iid))
+        self.db.tables.group.unjoin_by_dancer(iid)
         self.conn.commit()
 
 

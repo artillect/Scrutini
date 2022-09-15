@@ -1,7 +1,7 @@
 import classes as sc
-import PyQt5.QtWidgets as qt
-import PyQt5.QtCore as qc
-import PyQt5.QtGui as qg
+import PyQt6.QtWidgets as qt
+import PyQt6.QtCore as qc
+import PyQt6.QtGui as qg
 from sWidgets import verify, ask_save, sanitize
 
 
@@ -52,7 +52,7 @@ class JudgeSelector(qt.QDialog):
         self.exit_btn = qt.QPushButton('E&xit')
         self.exit_btn.clicked.connect(self.exit_button)
         self.layout.addWidget(self.exit_btn)
-        self.setWindowModality(qc.Qt.ApplicationModal)
+        self.setWindowModality(qc.Qt.WindowModality.ApplicationModal)
         self.setLayout(self.layout)
 
     def new_judge(self, sender=None):

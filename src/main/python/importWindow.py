@@ -1,9 +1,9 @@
 import datetime
 import csv
 import classes as sc
-import PyQt5.QtWidgets as qt
-import PyQt5.QtCore as qc
-import PyQt5.QtGui as qg
+import PyQt6.QtWidgets as qt
+import PyQt6.QtCore as qc
+import PyQt6.QtGui as qg
 from fuzzywuzzy import process
 from sWidgets import SPushButton, on_button_clicked, verify, ask_save, is_float
 from sWidgets import retrieve_csv_keys, retrieve_csv_dict, sanitize
@@ -47,7 +47,7 @@ class ImportWindow(qt.QDialog):
         for row in self.rows:
             self.table_columns.setRowCount(row_count + 1)
             item_name = qt.QTableWidgetItem(row)
-            item_name.setFlags(qc.Qt.NoItemFlags)
+            item_name.setFlags(qc.Qt.ItemFlag.NoItemFlags)
             selector_column = qt.QComboBox()
             selector_column.addItem('')
             self.table_columns.setItem(row_count, 0, item_name)
@@ -61,13 +61,13 @@ class ImportWindow(qt.QDialog):
         self.setLayout(self.layout)
 
     def choose_file(self):
-        options = qt.QFileDialog.Options()
-        options |= qt.QFileDialog.DontUseNativeDialog
+        # options = qt.QFileDialog.Options()
+        # options |= qt.QFileDialog.Option.DontUseNativeDialog
         self.filename, _ = qt.QFileDialog.getOpenFileName(self,
                                                           "Select CSV File",
                                                           "",
-                                                          "CSV Files (*.csv)",
-                                                          options=options)
+                                                          "CSV Files (*.csv)") #,
+                                                        #   options=options)
         if self.filename:
             print(self.filename)
         else:

@@ -1,10 +1,10 @@
 import datetime
 import classes as sc
-import PyQt5.QtWidgets as qt
-import PyQt5.QtCore as qc
-import PyQt5.QtGui as qg
+import PyQt6.QtWidgets as qt
+import PyQt6.QtCore as qc
+import PyQt6.QtGui as qg
 from sWidgets import SPushButton, get_formatted_date, ask_save, sanitize
-import pdb
+# import pdb
 
 
 class CompetitionEditor(qt.QDialog):
@@ -62,7 +62,7 @@ class CompetitionEditor(qt.QDialog):
         self.layout.addWidget(self.selector_competition_type)
         self.layout.addWidget(self.button_save)
         self.layout.addWidget(self.button_exit)
-        # self.setWindowModality(qc.Qt.ApplicationModal)
+        # self.setWindowModality(qc.Qt.WindowModality.ApplicationModal)
         self.setLayout(self.layout)
         self.main_window.show()
         self.show()
@@ -79,7 +79,7 @@ class CompetitionEditor(qt.QDialog):
                                              .selector_competition_type
                                              .currentIndex())
         self.db.t.competition.update(self.db.competition)
-        self.main_window.set_competition()
+        self.main_window.set_competition(self.db.competition.iid)
         self.changes_made = False
         self.hide()
 
@@ -117,18 +117,21 @@ class CompetitionSelector(qt.QDialog):
             ccid = self.db.competition.iid
         self.competition_buttons = []
         for competition in self.competitions:
-            competition_button = SPushButton('%s (%s)' % (competition.name,
-                                     get_formatted_date(
-                                         competition.event_date)),
-                                     self, competition.iid,
-                                     self.set_competition)
-            if ccid == competition.iid:
-                competition_button.setFocus(True)
-            else:
-                competition_button.setFocus(False)
-            competition_button.clicked.connect(
-                competition_button.on_button_clicked)
-            self.competition_buttons.append(competition_button)
+            try:
+              competition_button = SPushButton('%s (%s)' % (competition.name,
+                                      get_formatted_date(
+                                          competition.event_date)),
+                                      self, competition.iid,
+                                      self.set_competition)
+              if ccid == competition.iid:
+                  competition_button.setFocus()
+              else:
+                  competition_button.setFocus()
+              competition_button.clicked.connect(
+                  competition_button.on_button_clicked)
+              self.competition_buttons.append(competition_button)
+            except ValueError:
+              pass
         for competition_button in self.competition_buttons:
             self.layout.addWidget(competition_button)
         self.new_button = qt.QPushButton('&New Competition')
@@ -137,13 +140,13 @@ class CompetitionSelector(qt.QDialog):
         self.exit_button = qt.QPushButton('Cancel')
         self.exit_button.clicked.connect(self.hide)
         self.layout.addWidget(self.exit_button)
-        self.setWindowModality(qc.Qt.ApplicationModal)
+        self.setWindowModality(qc.Qt.WindowModality.ApplicationModal)
         self.setLayout(self.layout)
 
     def on_button_clicked(self, identifier):
         alert = qt.QMessageBox()
         alert.setText(identifier)
-        alert.exec_()
+        alert.exec()
 
     def set_competition(self, competition_id):
         self.db.competition = self.db.t.competition.get(competition_id)

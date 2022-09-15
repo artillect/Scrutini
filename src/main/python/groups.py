@@ -1,7 +1,7 @@
 import classes as sc
-import PyQt5.QtWidgets as qt
-import PyQt5.QtCore as qc
-import PyQt5.QtGui as qg
+import PyQt6.QtWidgets as qt
+import PyQt6.QtCore as qc
+import PyQt6.QtGui as qg
 from sWidgets import SPushButton, verify, ask_save, sanitize
 
 
@@ -72,9 +72,9 @@ class GroupEditor(qt.QDialog):
                                             cats[dancer.dancer_category].name)
                 checkbox_in_group = qt.QCheckBox()
                 if dancer.iid in self.dancer_ids:
-                    checkbox_in_group.setCheckState(2)
+                    checkbox_in_group.setCheckState(qc.Qt.CheckState.Checked) #2
                 else:
-                    checkbox_in_group.setCheckState(0)
+                    checkbox_in_group.setCheckState(qc.Qt.CheckState.Unchecked) #0
                 checkbox_in_group.stateChanged.connect(self.item_changed)
                 item_dancer_id = qt.QTableWidgetItem('%d' % dancer.iid)
                 self.table_dancers.setRowCount(row+1)
@@ -121,15 +121,15 @@ class GroupEditor(qt.QDialog):
                 item_places = qt.QTableWidgetItem('%d' % event.num_places)
                 checkbox_counts = qt.QCheckBox()
                 if event.counts_for_overall == 1:
-                    checkbox_counts.setCheckState(2)
+                    checkbox_counts.setCheckState(qc.Qt.CheckState.Checked)
                 else:
-                    checkbox_counts.setCheckState(0)
+                    checkbox_counts.setCheckState(qc.Qt.CheckState.Unchecked)
                 checkbox_counts.stateChanged.connect(self.item_changed)
                 checkbox_stamp = qt.QCheckBox()
                 if event.earns_stamp == 1:
-                    checkbox_stamp.setCheckState(2)
+                    checkbox_stamp.setCheckState(qc.Qt.CheckState.Checked)
                 else:
-                    checkbox_stamp.setCheckState(0)
+                    checkbox_stamp.setCheckState(qc.Qt.CheckState.Unchecked)
                 checkbox_stamp.stateChanged.connect(self.item_changed)
                 item_event_id = qt.QTableWidgetItem('%d' % event.iid)
                 self.table_events.setRowCount(row+1)
@@ -178,7 +178,7 @@ class GroupEditor(qt.QDialog):
         self.layout.addWidget(self.button_delete_group)
         self.layout.addWidget(self.button_save)
         self.layout.addWidget(self.button_exit)
-        self.setWindowModality(qc.Qt.ApplicationModal)
+        self.setWindowModality(qc.Qt.WindowModality.ApplicationModal)
         self.setLayout(self.layout)
 
     def save_button(self, sender=None):
@@ -206,13 +206,13 @@ class GroupEditor(qt.QDialog):
                 dancer_id = int(dancer_id_text)
             else:
                 dancer_id = 9999999999999999999
-            if checkbox_in_group.checkState() == 0 and (dancer_id in
+            if checkbox_in_group.checkState() == qc.Qt.CheckState.Unchecked and (dancer_id in
                                                         self.dancer_ids):
                 if self.db.s.verbose:
                     print('dancer [%d] in row %d is in group %d but should be '\
                           'removed' % (dancer_id, row, self.dancer_group.iid))
                 self.db.t.group.unjoin(dancer_id, self.dancer_group.iid)
-            elif checkbox_in_group.checkState() == 2 and (dancer_id not in
+            elif checkbox_in_group.checkState() == qc.Qt.CheckState.Checked and (dancer_id not in
                                                           self.dancer_ids):
                 if self.db.s.verbose:
                     print('dancer [%d] in row %d is not in group %d but should '\
@@ -237,12 +237,12 @@ class GroupEditor(qt.QDialog):
             if self.table_events.item(row, 2).text().isdigit():
                 event.num_places = int(self.table_events.item(row, 2).text())
             checkbox_counts = self.table_events.cellWidget(row, 1)
-            if checkbox_counts.checkState() == 2:
+            if checkbox_counts.checkState() == qc.Qt.CheckState.Checked:
                 event.counts_for_overall = 1
             else:
                 event.counts_for_overall = 0
             checkbox_stamp = self.table_events.cellWidget(row, 3)
-            if checkbox_stamp.checkState() == 2:
+            if checkbox_stamp.checkState() == qc.Qt.CheckState.Checked:
                 event.earns_stamp = 1
             else:
                 event.earns_stamp = 0
@@ -269,15 +269,15 @@ class GroupEditor(qt.QDialog):
         item_places = qt.QTableWidgetItem('%d' % event.num_places)
         checkbox_counts = qt.QCheckBox()
         if event.counts_for_overall == 1:
-            checkbox_counts.setCheckState(2)
+            checkbox_counts.setCheckState(qc.Qt.CheckState.Checked)
         else:
-            checkbox_counts.setCheckState(0)
+            checkbox_counts.setCheckState(qc.Qt.CheckState.Unchecked)
         checkbox_counts.stateChanged.connect(self.item_changed)
         checkbox_stamp = qt.QCheckBox()
         if event.earns_stamp == 1:
-            checkbox_stamp.setCheckState(2)
+            checkbox_stamp.setCheckState(qc.Qt.CheckState.Checked)
         else:
-            checkbox_stamp.setCheckState(0)
+            checkbox_stamp.setCheckState(qc.Qt.CheckState.Unchecked)
         checkbox_stamp.stateChanged.connect(self.item_changed)
         item_event_id = qt.QTableWidgetItem('%d' % event.iid)
 
@@ -377,7 +377,7 @@ class GroupMenu(qt.QDialog):
         self.exit_button = qt.QPushButton('E&xit')
         self.exit_button.clicked.connect(self.hide)
         self.layout.addWidget(self.exit_button)
-        self.setWindowModality(qc.Qt.ApplicationModal)
+        self.setWindowModality(qc.Qt.WindowModality.ApplicationModal)
         self.setLayout(self.layout)
 
     def new_group(self, sender=None):

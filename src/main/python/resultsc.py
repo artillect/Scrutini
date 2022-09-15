@@ -1,9 +1,9 @@
 from fpdf import FPDF
-from PyQt5 import QtPrintSupport
+from PyQt6 import QtPrintSupport
 import sys
-import PyQt5.QtWidgets as qt
-import PyQt5.QtCore as qc
-import PyQt5.QtGui as qg
+import PyQt6.QtWidgets as qt
+import PyQt6.QtCore as qc
+import PyQt6.QtGui as qg
 
 
 class ResultsGroupBox(qt.QGroupBox):
@@ -11,7 +11,7 @@ class ResultsGroupBox(qt.QGroupBox):
         super(ResultsGroupBox, self).__init__(text)
         self.db = db
         self.main_window = main_window
-        self.event = self.db.t.event.get(event)
+        self.chosen_event = self.db.t.event.get(event)
         self.layout = qt.QVBoxLayout()
         self.scores = self.db.t.score.get_by_event(event)
         self.scores.sort(key=lambda score: score.score, reverse=True)
@@ -43,7 +43,7 @@ class ResultsGroupBox(qt.QGroupBox):
                 self.placing_scores[score.dancer] = self.db.t.place_value.get(6).points
                 self.placing[6] = score.dancer
 
-            if ((place > self.event.num_places) or (score.score == 0)):
+            if ((place > self.chosen_event.num_places) or (score.score == 0)):
                 break
 
             dancer = self.db.t.dancer.get(score.dancer)
@@ -71,11 +71,11 @@ class ResultsGroupBox(qt.QGroupBox):
         return self.placing
 
     def select_event(self, event_id):
-        self.event = self.db.t.event.get(event_id)
+        self.chosen_event = self.db.t.event.get(event_id)
         for i in reversed(range(self.layout.count())):
             self.layout.itemAt(i).widget().setParent(None)
         self.update()
-        self.scores = self.db.t.score.get_by_event(self.event.iid)
+        self.scores = self.db.t.score.get_by_event(self.chosen_event.iid)
         self.scores.sort(key=lambda score: score.score, reverse=True)
         place = 1
         previous_score = 0
@@ -102,7 +102,7 @@ class ResultsGroupBox(qt.QGroupBox):
             elif ((place == 6) and (score.score > 0)):
                 self.placing_scores[score.dancer] = self.db.t.place_value.get(6).points
                 self.placing[6] = score.dancer
-            if ((place > self.event.num_places) or (score.score == 0)):
+            if ((place > self.chosen_event.num_places) or (score.score == 0)):
                 break
             dancer = self.db.t.dancer.get(score.dancer)
             previous_score = score.score
@@ -118,10 +118,9 @@ class ResultsViewWindow(qt.QDialog):
         self.db = db
         self.main_window = main_window
         self.main_window.setCentralWidget(self)
-        self.competition = self.db.competition
+        self.set_defaults()
+
         self.layout = qt.QVBoxLayout()
-        self.dancer_groups = self.db.t.group.get_by_competition(
-            self.competition.iid)
         self.big_layout = qt.QVBoxLayout()
         self.big_group_box = qt.QGroupBox()
         self.label_group = qt.QLabel('Viewing results for group:')
@@ -129,21 +128,23 @@ class ResultsViewWindow(qt.QDialog):
         self.selector_dancer_group = qt.QComboBox()
         self.group_box_scores = qt.QGroupBox()
         self.group_box_scores_layout = qt.QGridLayout()
-        self.dancer_group_ids = []
+
         for dancer_group in self.dancer_groups:
             self.selector_dancer_group.addItem(dancer_group.name)
             self.dancer_group_ids.append(dancer_group.iid)
         self.selector_dancer_group.currentIndexChanged.connect(
             self.new_group_selected)
         self.layout.addWidget(self.selector_dancer_group)
-        self.dancer_group = self.db.t.group.get(
-            self.dancer_group_ids[self.selector_dancer_group.currentIndex()])
-        self.events = self.db.t.event.get_by_group(self.dancer_group.iid)
-        self.dancers = self.db.t.event.get_by_group(self.dancer_group.iid)
-        self.overall_scores = {}
-        self.print_label = ''
+        if len(self.dancer_group_ids)>0:
+            self.dancer_group = self.db.t.group.get(
+                self.dancer_group_ids[self.selector_dancer_group.currentIndex()])
+        if self.dancer_group is not None:
+            self.events = self.db.t.event.get_by_group(self.dancer_group.iid)
+            self.dancers = self.db.t.dancer.get_by_group(self.dancer_group.iid)
+        
         for dancer in self.dancers:
             self.overall_scores[dancer.iid] = 0
+            # print(dancer.full_name)
         i = 1
         n = 1
         for event in self.events:
@@ -151,11 +152,11 @@ class ResultsViewWindow(qt.QDialog):
                                           self.main_window)
             # self.group_box_scores_layout.addWidget(results_box)
             if i % 2 == 0:
-                # self.group_box_scores_layout.addWidget(results_box, n,1,1,1, qc.Qt.AlignRight)
+                # self.group_box_scores_layout.addWidget(results_box, n,1,1,1, qc.Qt.AlignmentFlag.AlignRight)
                 self.group_box_scores_layout.addWidget(results_box)
                 n += 1
             else:
-                # self.group_box_scores_layout.addWidget(results_box, n,1,1,1,qc.Qt.AlignLeft)
+                # self.group_box_scores_layout.addWidget(results_box, n,1,1,1,qc.Qt.AlignmentFlag.AlignLeft)
                 self.group_box_scores_layout.addWidget(results_box)
             self.print_label += ('%s::%s:: ::' % (event.name,
                                  results_box.get_print_label()))
@@ -169,10 +170,14 @@ class ResultsViewWindow(qt.QDialog):
                     if self.overall_scores.get(dancer) is not None:
                         self.overall_scores[dancer] += points
             i += 1
+
         self.overall_scores_sorted = [(k, self.overall_scores[k]) for k in sorted(self.overall_scores, key=self.overall_scores.get, reverse=True)]
-        self.group_box_overall = qt.QGroupBox('Overall Results for %s' % self.dancer_group.name)
+        dg_name = ''
+        if self.dancer_group is not None:
+            dg_name = self.dancer_group.name
+        self.group_box_overall = qt.QGroupBox('Overall Results for %s' % dg_name)
         self.group_box_overall_layout = qt.QVBoxLayout()
-        self.print_label += ('Overall Results for %s::' % self.dancer_group.name)
+        self.print_label += ('Overall Results for %s::' % dg_name)
         place = 1
         for dancer_id, points in self.overall_scores_sorted:
             if points <= 0:
@@ -202,8 +207,23 @@ class ResultsViewWindow(qt.QDialog):
         # self.sizeHint()
         # self.resize(800,400)
 
+    def set_defaults(self):
+        self.competition = self.db.competition
+        self.dancer_group = None
+        self.dancers = []
+        self.dancer = None
+        self.chosen_event = None
+        self.event_ids = []
+        self.events = []
+        self.dancer_groups = self.db.t.group.get_by_competition(
+            self.competition.iid)
+        self.dancer_group_ids = []
+        self.overall_scores = {}
+        self.print_label = ''
+        self.overall_scores_sorted = []
+
     def print_to_printer(self):
-        doc_text = ('<center><strong>%s</strong><br>%s<br>%s</center>' %
+        doc_text = ('<center><strong>%s</strong><br>%s<br><strong>%s</strong></center>' %
                     (self.competition.name,self.competition.event_date[0:10],
                      self.dancer_group.name))
         print_label_list = self.print_label.split('::')
@@ -211,8 +231,8 @@ class ResultsViewWindow(qt.QDialog):
             doc_text += ('<br>%s' % label)
         textedit = qt.QTextEdit(doc_text)
         dialog = QtPrintSupport.QPrintDialog()
-        if dialog.exec_() == qt.QDialog.Accepted:
-            textedit.document().print_(dialog.printer())
+        if dialog.exec() == qt.QDialog.DialogCode.Accepted:
+            textedit.document().print(dialog.printer())
 
     def print_to_pdf(self):
         self.pdf = FPDF(orientation='P',unit='mm',format='letter')
@@ -221,14 +241,16 @@ class ResultsViewWindow(qt.QDialog):
         self.pdf.cell(180,5,txt=self.competition.name,ln=1,align='C')
         self.pdf.set_font('helvetica', size=12)
         self.pdf.cell(180,5,txt=self.competition.event_date[0:10],ln=1,align='C')
+        self.pdf.set_font('helvetica','B', size=14)
         self.pdf.cell(180,5,txt=self.dancer_group.name,ln=1,align='C')
+        self.pdf.set_font('helvetica', size=12)
         self.pdf.cell(180,5,txt=' ',ln=1,align='C')
         print_label_list = self.print_label.split('::')
         for label in print_label_list:
             self.pdf.cell(180,5,txt=label,ln=1,align='L')
-        options = qt.QFileDialog.Options()
-        options |= qt.QFileDialog.DontUseNativeDialog
-        self.filename, _ = qt.QFileDialog.getSaveFileName(self,"Save File", "","PDF Files (*.pdf)", options=options)
+        # options = qt.QFileDialog.Options()
+        # options |= qt.QFileDialog.Option.DontUseNativeDialog
+        self.filename, _ = qt.QFileDialog.getSaveFileName(self,"Save File", "","PDF Files (*.pdf)") #, options=options)
         if self.filename:
             if (self.filename[-4:].lower() != '.pdf'):
                 self.filename += '.pdf'
@@ -260,10 +282,10 @@ class ResultsViewWindow(qt.QDialog):
             #self.group_box_scores_layout.addWidget(results_box)
             results_box.sizeHint()
             if (i%2==0):
-                self.group_box_scores_layout.addWidget(results_box, n,1,1,1, qc.Qt.AlignRight)
+                self.group_box_scores_layout.addWidget(results_box, n,1,1,1, qc.Qt.AlignmentFlag.AlignRight)
                 n += 1
             else:
-                self.group_box_scores_layout.addWidget(results_box, n,1,1,1,qc.Qt.AlignLeft)
+                self.group_box_scores_layout.addWidget(results_box, n,1,1,1,qc.Qt.AlignmentFlag.AlignLeft)
             self.print_label += ('%s::%s:: ::' % (event.name, results_box.get_print_label()))
             if (event.counts_for_overall == 1):
                 if self.db.s.verbose:

@@ -1,7 +1,7 @@
 import classes as sc
-import PyQt5.QtWidgets as qt
-import PyQt5.QtCore as qc
-import PyQt5.QtGui as qg
+import PyQt6.QtWidgets as qt
+import PyQt6.QtCore as qc
+import PyQt6.QtGui as qg
 from sWidgets import verify, ask_save, sanitize
 
 class DancerEditor(qt.QDialog):
@@ -111,7 +111,7 @@ class DancerEditor(qt.QDialog):
         self.exit_button = qt.QPushButton('E&xit')
         self.exit_button.clicked.connect(self.cancel_button)
         self.layout.addWidget(self.exit_button)
-        self.setWindowModality(qc.Qt.ApplicationModal)
+        self.setWindowModality(qc.Qt.WindowModality.ApplicationModal)
         self.setLayout(self.layout)
 
     def item_changed(self, sender=None):
@@ -137,7 +137,7 @@ class DancerEditor(qt.QDialog):
         # id, firstName, lastName, scotDanceNum, street, city, state, zipCode,
         # birthdate, age, registeredDate, number, phonenum, email, teacher,
         # teacherEmail, dancerCat, dancer_group, competition
-        dancer = self.db.t.dancer.new()
+        dancer = self.db.t.dancer.new(self.competition_id)
         self.table_dancers.insertRow(row)
         item_first_name = qt.QTableWidgetItem(dancer.first_name)
         item_last_name = qt.QTableWidgetItem(dancer.last_name)

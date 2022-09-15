@@ -1,0 +1,7 @@
+fbs
+PyQt6
+fpdf
+argparse
+fuzzywuzzy
+python-Levenshtein
+sentry-sdk
