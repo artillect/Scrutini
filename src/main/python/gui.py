@@ -108,12 +108,18 @@ class SMainWindow(qt.QMainWindow):
                                     self.db.competition.event_date),
                                 self.db.competition.location))
             self.toolbar.set_label(label_text)
+            if self.db.competition.name is not None:
+                title_text = ('Scrutini - %s %8s, %s' % (self.db.competition.name,get_formatted_date(self.db.competition.event_date),self.db.competition.location))
+            else:
+                title_text = ('Scrutini')
+            self.setWindowTitle(title_text)
             self.db.s.last_comp = self.db.competition.iid
             self.toolbar.buttons.enable_all()
             return self.db.competition
         else:
             label_text = ('<center>No Competition Selected</center>')
             self.toolbar.set_label(label_text)
+            self.setWindowTitle('Scrutini - No Competition Selected')
             self.toolbar.buttons.disable_all()
             return None
 
