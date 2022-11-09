@@ -7,7 +7,7 @@ import gui
 from db import SCDatabase
 from classes import Settings
 from fbs_runtime.application_context.PyQt6 import ApplicationContext
-from qt_material import apply_stylesheet
+# from qt_material import apply_stylesheet
 import PyQt6.QtGui as qg
 import subprocess
 import darkdetect
@@ -29,7 +29,7 @@ class AppContext(ApplicationContext):
         # if darkdetect.isDark():
         # if check_appearance():
             mode = "dark"
-        apply_stylesheet(self.app, theme=f"{mode}_blue.xml")
+        # apply_stylesheet(self.app, theme=f"{mode}_blue.xml")
         # print(darkdetect.theme())
         window = gui.SMainWindow(self, db)
         scriptDir = os.path.dirname(os.path.realpath(__file__))
