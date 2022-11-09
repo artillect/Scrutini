@@ -46,13 +46,13 @@ class SMainWindow(qt.QMainWindow):
         # tray = qg.QSystemTrayIcon()
         # tray.setIcon(icon)
         # tray.setVisible(True)
-        # self.setWindowIcon(qg.QIcon("../icons/linux/1024.png"))
         print(scriptDir + os.path.sep + '../icons/linux/1024.png')
         self.setGeometry(0, 0, 1200, 800)
         self.statusBar()
         self.statusBar().show()
-        self.menubar = SMenuBar(None, self)
-        self.setMenuBar(menubar)
+        
+        self.mb = SMenuBar(None, self)
+        self.setMenuBar(self.mb)
         if self.db.get_competition() is None:
             self.db.competition = self.select_competition()
         self.set_competition()
@@ -155,6 +155,7 @@ class SMainWindow(qt.QMainWindow):
     def new_competition(self):
         self.db.competition = self.db.t.competition.new()
         self.edit_competition()
+        self.setWindowTitle(title_text)
         return self.db.competition
 
 
@@ -219,7 +220,6 @@ class SMenuBar(qt.QMenuBar):
         scores_menu.addActions([enter_scores_action, view_scores_action])
 
     def competitors(self, dancers_menu):
-        dancers_action = qg.QAction(' &Add/Edit Competitors', self)
         dancers_action.setStatusTip('Edit competitor details.')
         dancers_action.triggered.connect(
             lambda: self.main_window.press(DancerEditor))
@@ -228,7 +228,6 @@ class SMenuBar(qt.QMenuBar):
             'Choose which competitors are in which groups.')
         groups_action.triggered.connect(
             lambda: self.main_window.press(DancerGroupMenu))
-        import_action = qg.QAction(' &Import CSV', self)
         import_action.setStatusTip(
             'Import dancer information from a CSV spreadsheet.')
         import_action.triggered.connect(
@@ -308,8 +307,6 @@ class STButtons(qt.QWidget):
         dancers = qt.QPushButton('&Add/Edit Competitors', self)
         judges = qt.QPushButton('Add/Edit &Judges', self)
         dancer_groups = qt.QPushButton(
-            'Define Competitor &Groups && Dances', self)
-        btn_import = qt.QPushButton('&Import CSV', self)
         delete = qt.QPushButton('&Delete Competition', self)
         exit = qt.QPushButton(' E&xit', self)
         scrutineer.clicked.connect(
