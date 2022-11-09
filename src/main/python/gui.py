@@ -16,6 +16,7 @@ from groups import GroupMenu as DancerGroupMenu
 from competitions import CompetitionEditor, CompetitionSelector
 from importWindow import ImportWindow
 from judges import JudgeSelector
+from home import HomePage
 # import platform
 
 
@@ -220,6 +221,7 @@ class SMenuBar(qt.QMenuBar):
         scores_menu.addActions([enter_scores_action, view_scores_action])
 
     def competitors(self, dancers_menu):
+        dancers_action = qg.QAction(' &Manage Competitors', self)
         dancers_action.setStatusTip('Edit competitor details.')
         dancers_action.triggered.connect(
             lambda: self.main_window.press(DancerEditor))
@@ -299,6 +301,7 @@ class STButtons(qt.QWidget):
     def __init__(self, toolbar):
         super().__init__(toolbar)
         self.toolbar = toolbar
+        home = qt.QPushButton('Home', self)
         scrutineer = qt.QPushButton('Enter &Scores', self)
         scrutineer.setStatusTip(
             'Enter competitor scores during the competition')
@@ -321,6 +324,9 @@ class STButtons(qt.QWidget):
         delete.setToolTip('Delete the current competition and all data.')
         exit = qt.QPushButton(' E&xit', self)
         exit.setToolTip('Exit Scrutini.')
+        home.clicked.connect(
+            lambda: toolbar.parent.press(HomePage)
+        )
         scrutineer.clicked.connect(
             lambda: toolbar.parent.press(ScoreEntryWindow))
         view_scores.clicked.connect(
@@ -339,6 +345,7 @@ class STButtons(qt.QWidget):
         hide_button = qt.QPushButton(' &Hide Toolbar', self)
         hide_button.clicked.connect(self.toolbar.show_hide)
         self.buttons = [scrutineer, view_scores, change_competition,
+        self.buttons = [home, scrutineer, view_scores, change_competition,
                         edit_competition, dancers, judges, dancer_groups,
                         btn_import, delete, exit, hide_button]
 
