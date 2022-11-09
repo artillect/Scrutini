@@ -32,6 +32,11 @@ class SMainWindow(qt.QMainWindow):
         self.set_competition()
         self.setUnifiedTitleAndToolBarOnMac(True)
         # self.setUnifiedTitleAndToolBarOnMac(False)
+        # Set title based on selected competition
+        if self.db.competition is not None:
+            title_text = ('Scrutini - %s %8s, %s' % (self.db.competition.name,get_formatted_date(self.db.competition.event_date),self.db.competition.location))
+        else:
+            title_text = ('Scrutini')
         # font = qg.QFont("Lucida Grande")
         # self.setFont(font)
         scriptDir = os.path.dirname(os.path.realpath(__file__))
