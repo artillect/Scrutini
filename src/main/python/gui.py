@@ -228,6 +228,7 @@ class SMenuBar(qt.QMenuBar):
             'Choose which competitors are in which groups.')
         groups_action.triggered.connect(
             lambda: self.main_window.press(DancerGroupMenu))
+        import_action = qg.QAction(' &Import Spreadsheet', self)
         import_action.setStatusTip(
             'Import dancer information from a CSV spreadsheet.')
         import_action.triggered.connect(
@@ -301,14 +302,25 @@ class STButtons(qt.QWidget):
         scrutineer = qt.QPushButton('Enter &Scores', self)
         scrutineer.setStatusTip(
             'Enter competitor scores during the competition')
+        scrutineer.setToolTip('Enter competitor scores during the competition')
         view_scores = qt.QPushButton('&View/Print Results', self)
+        view_scores.setToolTip('View event results, and print or save to PDF.')
         change_competition = qt.QPushButton('&Change Competition', self)
+        change_competition.setToolTip('Choose a different competition or make a new one.')
         edit_competition = qt.QPushButton('&Edit Competition Details', self)
+        edit_competition.setToolTip('Edit Competition Details.')
         dancers = qt.QPushButton('&Add/Edit Competitors', self)
         judges = qt.QPushButton('Add/Edit &Judges', self)
+        judges.setToolTip('Edit competition judge list.')
         dancer_groups = qt.QPushButton(
+            '&Groups && Events', self)
+        dancer_groups.setToolTip('Manage competitor groups, and events.')
+        btn_import = qt.QPushButton('&Import Spreadsheet', self)
+        btn_import.setToolTip('Import CSV file with dancer registration information.')
         delete = qt.QPushButton('&Delete Competition', self)
+        delete.setToolTip('Delete the current competition and all data.')
         exit = qt.QPushButton(' E&xit', self)
+        exit.setToolTip('Exit Scrutini.')
         scrutineer.clicked.connect(
             lambda: toolbar.parent.press(ScoreEntryWindow))
         view_scores.clicked.connect(
