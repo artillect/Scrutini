@@ -51,8 +51,8 @@ class SMainWindow(qt.QMainWindow):
         self.setGeometry(0, 0, 1200, 800)
         self.statusBar()
         self.statusBar().show()
-        self.mb = SMenuBar(None, self)
-        # self.setMenuBar(menubar)
+        self.menubar = SMenuBar(None, self)
+        self.setMenuBar(menubar)
         if self.db.get_competition() is None:
             self.db.competition = self.select_competition()
         self.set_competition()
