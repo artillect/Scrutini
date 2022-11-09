@@ -156,6 +156,7 @@ class SMainWindow(qt.QMainWindow):
     def new_competition(self):
         self.db.competition = self.db.t.competition.new()
         self.edit_competition()
+        title_text = ('Scrutini - New Competition')
         self.setWindowTitle(title_text)
         return self.db.competition
 
